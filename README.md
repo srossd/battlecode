@@ -1,2 +1,3 @@
 battlecode
+HELLO!
 ==========
