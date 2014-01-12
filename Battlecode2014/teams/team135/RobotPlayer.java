@@ -37,6 +37,15 @@ public class RobotPlayer {
 								toRoad)) == null) {
 							rc.spawn(toRoad);
 						}
+					} else if (rc.isActive()) {
+						Robot[] nearbyEnemies = rc.senseNearbyGameObjects(
+								Robot.class, 10, rc.getTeam().opponent());
+						if (nearbyEnemies.length > 0
+								&& rc.senseRobotInfo(nearbyEnemies[0]).type != RobotType.HQ) {
+							RobotInfo robotInfo = rc
+									.senseRobotInfo(nearbyEnemies[0]);
+							rc.attackSquare(robotInfo.location);
+						}
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
@@ -52,7 +61,7 @@ public class RobotPlayer {
 							pastrBot(rc);
 					}
 				} catch (Exception e) {
-					System.out.println("Soldier Exception");
+					e.printStackTrace();
 				}
 			}
 
@@ -77,18 +86,19 @@ public class RobotPlayer {
 				&& rc.senseRobotInfo(nearbyEnemies[0]).type != RobotType.HQ) {
 			RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
 			rc.attackSquare(robotInfo.location);
+			return;
 		}
 		int i = 0;
 		if (rc.canMove(toOpponent)
 				&& rc.senseTerrainTile(rc.getLocation().add(toOpponent)) == TerrainTile.ROAD) {
-			rc.sneak(toOpponent);
+			rc.move(toOpponent);
 			return;
 		}
 		i++;
 		i = 0;
 		for (Direction d = toOpponent; i < 8; d = d.rotateLeft()) {
 			if (rc.canMove(d)) {
-				rc.sneak(d);
+				rc.move(d);
 				return;
 			}
 			i++;
@@ -101,17 +111,24 @@ public class RobotPlayer {
 				&& rc.senseCowsAtLocation(rc.getLocation()) > 100)
 			rc.construct(RobotType.PASTR);
 		double[] cows = new double[8];
-		Direction[] directions = Direction.values();
 		for (int i = 0; i < 8; i++)
 			cows[i] = rc.senseCowsAtLocation(rc.getLocation()
 					.add(directions[i]));
 		int index = maxIndex(cows);
 		if (index < 0) {
 			Direction[] roads = roads(rc, rc.getLocation());
-			int r = rand.nextInt(roads.length);
-			Direction toRoad = roads[r];
-			rc.sneak(toRoad);
-			return;
+			for (Direction d : roads) {
+				if (rc.canMove(d)) {
+					rc.sneak(d);
+					return;
+				}
+			}
+			for (Direction d : directions) {
+				if (rc.canMove(d)) {
+					rc.sneak(d);
+					return;
+				}
+			}
 		}
 		if (rc.senseCowsAtLocation(rc.getLocation()) > Math.max(cows[index],
 				100))
@@ -121,14 +138,14 @@ public class RobotPlayer {
 		else {
 			Direction d = directions[rand.nextInt(8)];
 			if (rc.canMove(d))
-				rc.move(directions[rand.nextInt(8)]);
+				rc.move(d);
 		}
 	}
 
 	public static Direction[] roads(RobotController rc, MapLocation loc)
 			throws GameActionException {
 		int n = 0;
-		for (Direction d : Direction.values()) {
+		for (Direction d : directions) {
 			if (rc.senseTerrainTile(loc.add(d)).equals(TerrainTile.ROAD))
 				n++;
 		}
@@ -136,7 +153,7 @@ public class RobotPlayer {
 			return directions;
 		Direction[] roads = new Direction[n];
 		int i = 0;
-		for (Direction d : Direction.values()) {
+		for (Direction d : directions) {
 			if (rc.senseTerrainTile(loc.add(d)).equals(TerrainTile.ROAD))
 				roads[i++] = d;
 		}
