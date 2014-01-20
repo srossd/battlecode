@@ -241,7 +241,9 @@ public class RobotPlayer {
 		boolean[] isVoid = new boolean[8];
 		int numWalls = 0;
 		for (int i = 0; i < 8; i++)
-			if (rc.senseTerrainTile(rc.getLocation().add(directions[i])) == TerrainTile.VOID) {
+			if (rc.senseTerrainTile(rc.getLocation().add(directions[i])) ==
+				TerrainTile.VOID || rc.senseObjectAtLocation(rc.getLocation().
+				add(directions[i])) != null) {
 				isVoid[i] = true;
 				numWalls++;
 			}
