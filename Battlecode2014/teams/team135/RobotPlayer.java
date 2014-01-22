@@ -39,6 +39,13 @@ public class RobotPlayer {
 
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
+				int cnt = 0;
+				for (Direction d: directions)
+				{
+					if (rc.canMove(d))
+						cnt++;	
+				}
+				defenseReady = cnt;
 				try {
 					// Check if a robot is spawnable and spawn one if it is
 					if (rc.isActive()) {
