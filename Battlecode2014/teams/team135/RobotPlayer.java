@@ -64,7 +64,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
 					if (rc.isActive()) {
-						if (rc.getTeam().values().length >= defenseReady)
+						if (rc.senseRobotCount() >= defenseReady)
 						{
 							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
 								attackBot(rc);
@@ -76,10 +76,13 @@ public class RobotPlayer {
 						}
 						else
 						{
-							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class, 10, rc
-									.getTeam().opponent());
-							RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
-                            rc.attackSquare(robotInfo.location);
+							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(
+									Robot.class, 10, rc.getTeam().opponent());
+							if (nearbyEnemies.length > 0
+									&& rc.senseRobotInfo(nearbyEnemies[0]).type != RobotType.HQ) {
+								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
+								rc.attackSquare(robotInfo.location);
+							}
 						}
 					}
 				} catch (Exception e) {
