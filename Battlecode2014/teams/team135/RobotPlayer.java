@@ -20,6 +20,7 @@ public class RobotPlayer {
 
 	static int pastrChannel = 57;
 	static int attackChannel = 58;
+	static int defenseReady = 6;
 	static boolean signaledAtHQ = false;
 
 	static boolean followingWall = false;
@@ -63,13 +64,23 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
 					if (rc.isActive()) {
-						if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
-							attackBot(rc);
-						else if (rc.senseBroadcastingRobotLocations(rc
-								.getTeam()).length > 0)
-							guardBot(rc);
+						if (rc.getTeam().values().length >= defenseReady)
+						{
+							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
+								attackBot(rc);
+							else if (rc.senseBroadcastingRobotLocations(rc
+									.getTeam()).length > 0)
+								guardBot(rc);
+							else
+								pastrBot(rc);
+						}
 						else
-							pastrBot(rc);
+						{
+							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class, 10, rc
+									.getTeam().opponent());
+							RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
+                            rc.attackSquare(robotInfo.location);
+						}
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -191,7 +202,7 @@ public class RobotPlayer {
 		}
 
 	}
-
+	
 	public static void pastrBot(RobotController rc) throws GameActionException {
 		if (signaledAtHQ) {
 			rc.broadcast(attackChannel, rc.readBroadcast(attackChannel) - 1);
