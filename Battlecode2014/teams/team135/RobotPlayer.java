@@ -22,7 +22,7 @@ public class RobotPlayer {
 
 	static int pastrChannel = 57;
 	static int attackChannel = 58;
-	static int defenseReady = 6;
+	static int HQSpaces = 8;
 	static boolean signaledAtHQ = false;
 
 	static boolean followingWall = false;
@@ -36,7 +36,7 @@ public class RobotPlayer {
 				Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH,
 				Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST };
 		pastrChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
-
+		int defenseReady = 8;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
 				int cnt = 0;
@@ -45,7 +45,13 @@ public class RobotPlayer {
 					if (rc.canMove(d))
 						cnt++;	
 				}
-				defenseReady = cnt;
+				try{
+				rc.broadcast(HQSpaces, cnt);
+				}
+				catch (Exception e)
+				{
+					
+				}
 				try {
 					// Check if a robot is spawnable and spawn one if it is
 					if (rc.isActive()) {
@@ -74,7 +80,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
 					if (rc.isActive()) {
-						if (rc.senseRobotCount() >= defenseReady)
+						if (rc.senseRobotCount() >= rc.readBroadcast(HQSpaces))
 						{
 							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
 								attackBot(rc);
