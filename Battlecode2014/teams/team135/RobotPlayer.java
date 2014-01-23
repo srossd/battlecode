@@ -36,29 +36,24 @@ public class RobotPlayer {
 				Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH,
 				Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST };
 		pastrChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
-        boolean ready = false;
+		boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
-                int empty = 0;
-		        for (Direction d: directions)
-		        {
-			        if (rc.canMove(d))
-			            empty++;	
-		        }
-                try{
-                if (empty == 0)
-                {
-				rc.broadcast(readyChannel, 1);
+				int empty = 0;
+				for (Direction d : directions) {
+					if (rc.canMove(d))
+						empty++;
 				}
-                else
-                {
-                    if (rc.readBroadcast(readyChannel) != 0)
-                    {
-                    rc.broadcast(readyChannel,0);}
-                }}
-                catch (Exception e)
-				{
-				
+				try {
+					if (empty == 0) {
+						rc.broadcast(readyChannel, 1);
+					} else {
+						if (rc.readBroadcast(readyChannel) != 0) {
+							rc.broadcast(readyChannel, 0);
+						}
+					}
+				} catch (Exception e) {
+
 				}
 				try {
 					// Check if a robot is spawnable and spawn one if it is
@@ -81,34 +76,33 @@ public class RobotPlayer {
 						}
 					}
 				} catch (Exception e) {
-					//System.out.println("HQ Exception");
+					// System.out.println("HQ Exception");
 				}
 			}
 
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
 					if (rc.isActive()) {
-                        if (rc.readBroadcast(readyChannel) == 1)
-                        {
-                            ready = true;
-                        }
-						if (ready)
-						{
-							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
+						if (rc.readBroadcast(readyChannel) == 1) {
+							ready = true;
+						}
+						if (ready) {
+							if (rc.readBroadcast(attackChannel) < maxHQ
+									&& !awall)
 								attackBot(rc);
 							else if (rc.senseBroadcastingRobotLocations(rc
 									.getTeam()).length > 0)
-								noiseBot(rc);
+								// noiseBot(rc);
+								guardBot(rc);
 							else
 								pastrBot(rc);
-						}
-						else
-						{
+						} else {
 							Robot[] nearbyEnemies = rc.senseNearbyGameObjects(
 									Robot.class, 10, rc.getTeam().opponent());
 							if (nearbyEnemies.length > 0
 									&& rc.senseRobotInfo(nearbyEnemies[0]).type != RobotType.HQ) {
-								RobotInfo robotInfo = rc.senseRobotInfo(nearbyEnemies[0]);
+								RobotInfo robotInfo = rc
+										.senseRobotInfo(nearbyEnemies[0]);
 								rc.attackSquare(robotInfo.location);
 							}
 						}
@@ -134,13 +128,13 @@ public class RobotPlayer {
 					e.printStackTrace();
 				}
 			}
-			
+
 			if (rc.getType() == RobotType.NOISETOWER) {
 				try {
-					for (Direction d : directions) {
-						for(int i = 16; i > 0; i--) {
-							rc.attackSquare(rc.getLocation().add(d,i));
-						}
+					for (int i = 16; i > 0; i-=3) {
+						for (Direction d : directions)
+							rc.attackSquare(rc.getLocation().add(d, i));
+						rc.yield();
 					}
 				} catch (Exception e) {
 					System.out.println("noise exception");
@@ -240,7 +234,7 @@ public class RobotPlayer {
 		}
 
 	}
-	
+
 	public static void pastrBot(RobotController rc) throws GameActionException {
 		if (signaledAtHQ) {
 			rc.broadcast(attackChannel, rc.readBroadcast(attackChannel) - 1);
@@ -275,7 +269,7 @@ public class RobotPlayer {
 				rc.move(d);
 		}
 	}
-	
+
 	public static void noiseBot(RobotController rc) throws GameActionException {
 		if (signaledAtHQ) {
 			rc.broadcast(attackChannel, rc.readBroadcast(attackChannel) - 1);
@@ -306,7 +300,7 @@ public class RobotPlayer {
 			}
 		} else {
 			rc.construct(RobotType.NOISETOWER);
-			while(true)
+			while (true)
 				rc.yield();
 		}
 
@@ -327,9 +321,9 @@ public class RobotPlayer {
 		boolean[] isVoid = new boolean[8];
 		int numWalls = 0;
 		for (int i = 0; i < 8; i++)
-			if (rc.senseTerrainTile(rc.getLocation().add(directions[i])) ==
-				TerrainTile.VOID || rc.senseObjectAtLocation(rc.getLocation().
-				add(directions[i])) != null) {
+			if (rc.senseTerrainTile(rc.getLocation().add(directions[i])) == TerrainTile.VOID
+					|| rc.senseObjectAtLocation(rc.getLocation().add(
+							directions[i])) != null) {
 				isVoid[i] = true;
 				numWalls++;
 			}
