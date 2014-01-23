@@ -22,12 +22,11 @@ public class RobotPlayer {
 
 	static int pastrChannel = 57;
 	static int attackChannel = 58;
-	static int HQSpaces = 8;
+	static int readyChannel = 8;
 	static boolean signaledAtHQ = false;
 
 	static boolean followingWall = false;
 	static int turnsRemaining = 3;
-	static int numRobots = 0;
 
 	static boolean awall = false;
 
@@ -37,21 +36,29 @@ public class RobotPlayer {
 				Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH,
 				Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST };
 		pastrChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
-		int defenseReady = 8;
+        boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
-				int cnt = 0;
-				for (Direction d: directions)
-				{
-					if (rc.canMove(d))
-						cnt++;	
+                int empty = 0;
+		        for (Direction d: directions)
+		        {
+			        if (rc.canMove(d))
+			            empty++;	
+		        }
+                try{
+                if (empty == 0)
+                {
+				rc.broadcast(readyChannel, 1);
 				}
-				try{
-				rc.broadcast(HQSpaces, cnt);
-				}
-				catch (Exception e)
+                else
+                {
+                    if (rc.readBroadcast(readyChannel) != 0)
+                    {
+                    rc.broadcast(readyChannel,0);}
+                }}
+                catch (Exception e)
 				{
-					
+				
 				}
 				try {
 					// Check if a robot is spawnable and spawn one if it is
@@ -74,16 +81,18 @@ public class RobotPlayer {
 						}
 					}
 				} catch (Exception e) {
-					System.out.println("HQ Exception");
+					//System.out.println("HQ Exception");
 				}
 			}
 
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
-					if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) < 10)
-						numRobots++;
 					if (rc.isActive()) {
-						if (rc.readBroadcast(HQSpaces) != 0 && numRobots >= rc.readBroadcast(HQSpaces))
+                        if (rc.readBroadcast(readyChannel) == 1)
+                        {
+                            ready = true;
+                        }
+						if (ready)
 						{
 							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
 								attackBot(rc);
@@ -226,7 +235,7 @@ public class RobotPlayer {
 			signaledAtHQ = false;
 			awall = true;
 		}
-		if (rand.nextInt(50) < 1
+		if (rand.nextInt(30) < 1
 				&& rc.senseCowsAtLocation(rc.getLocation()) > 100)
 			rc.construct(RobotType.PASTR);
 		double[] cows = new double[8];
