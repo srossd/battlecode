@@ -27,6 +27,7 @@ public class RobotPlayer {
 
 	static boolean followingWall = false;
 	static int turnsRemaining = 3;
+	static int numRobots = 0;
 
 	static boolean awall = false;
 
@@ -79,11 +80,10 @@ public class RobotPlayer {
 
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
-					int numRobots = 0;
-					if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) < 50)
+					if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) < 10)
 						numRobots++;
 					if (rc.isActive()) {
-						if (numRobots >= rc.readBroadcast(HQSpaces))
+						if (rc.readBroadcast(HQSpaces) != 0 && numRobots >= rc.readBroadcast(HQSpaces))
 						{
 							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
 								attackBot(rc);
