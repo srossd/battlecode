@@ -92,8 +92,14 @@ public class RobotPlayer {
 								attackBot(rc);
 							else if (rc.senseBroadcastingRobotLocations(rc
 									.getTeam()).length > 0)
-								// noiseBot(rc);
-								guardBot(rc);
+                                if (rand.nextInt(2) < 1)
+                                {
+								    noiseBot(rc);
+                                }
+                                else
+                                {
+								    guardBot(rc);
+                                }
 							else
 								pastrBot(rc);
 						} else {
@@ -130,15 +136,23 @@ public class RobotPlayer {
 			}
 
 			if (rc.getType() == RobotType.NOISETOWER) {
-				try {
-					for (int i = 16; i > 0; i-=3) {
+					for (int i = 16; i > 3; i-=5) {
 						for (Direction d : directions)
-							rc.attackSquare(rc.getLocation().add(d, i));
+                        {
+                            System.out.println(d);
+                            try {
+                                System.out.println("try" + d);
+							    rc.attackSquare(rc.getLocation().add(d, i));
+                                rc.yield();
+                                rc.yield();
+                                rc.yield();
+                                rc.yield();
+                            }
+                            catch (Exception e)
+                            { System.out.println(e + "   " + e.getMessage());}
+                        }
 						rc.yield();
 					}
-				} catch (Exception e) {
-					System.out.println("noise exception");
-				}
 			}
 
 			rc.yield();
