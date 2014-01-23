@@ -67,7 +67,7 @@ public class RobotPlayer {
 							attackBot(rc);
 						else if (rc.senseBroadcastingRobotLocations(rc
 								.getTeam()).length > 0)
-							guardBot(rc);
+							noiseBot(rc);
 						else
 							pastrBot(rc);
 					}
@@ -91,6 +91,10 @@ public class RobotPlayer {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+			
+			if (rc.getType() == RobotType.NOISETOWER) {
+				
 			}
 
 			rc.yield();
