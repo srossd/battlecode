@@ -79,8 +79,11 @@ public class RobotPlayer {
 
 			if (rc.getType() == RobotType.SOLDIER) {
 				try {
+					int numRobots = 0;
+					if (rc.getLocation().distanceSquaredTo(rc.senseHQLocation()) < 50)
+						numRobots++;
 					if (rc.isActive()) {
-						if (rc.senseRobotCount() >= rc.readBroadcast(HQSpaces))
+						if (numRobots >= rc.readBroadcast(HQSpaces))
 						{
 							if (rc.readBroadcast(attackChannel) < maxHQ && !awall)
 								attackBot(rc);
