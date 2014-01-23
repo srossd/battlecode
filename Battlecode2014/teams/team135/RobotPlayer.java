@@ -136,7 +136,15 @@ public class RobotPlayer {
 			}
 			
 			if (rc.getType() == RobotType.NOISETOWER) {
-				
+				try {
+					for (Direction d : directions) {
+						for(int i = 16; i > 0; i--) {
+							rc.attackSquare(rc.getLocation().add(d,i));
+						}
+					}
+				} catch (Exception e) {
+					System.out.println("noise exception");
+				}
 			}
 
 			rc.yield();
