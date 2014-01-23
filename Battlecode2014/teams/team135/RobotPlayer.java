@@ -225,6 +225,42 @@ public class RobotPlayer {
 				rc.move(d);
 		}
 	}
+	
+	public static void noiseBot(RobotController rc) throws GameActionException {
+		if (signaledAtHQ) {
+			rc.broadcast(attackChannel, rc.readBroadcast(attackChannel) - 1);
+			signaledAtHQ = false;
+			awall = true;
+		}
+		Robot[] nearby = rc
+				.senseNearbyGameObjects(Robot.class, 4, rc.getTeam());
+		boolean atPost = false;
+		for (Robot r : nearby)
+			if (rc.senseRobotInfo(r).type == RobotType.PASTR)
+				atPost = true;
+		if (!atPost) {
+			MapLocation[] broadcasters = rc.senseBroadcastingRobotLocations(rc
+					.getTeam());
+			if (broadcasters.length == 0)
+				return;
+			Direction toBroadcaster = rc.getLocation().directionTo(
+					broadcasters[0]);
+
+			int i = 0;
+			for (Direction d = toBroadcaster; i < 8; d = d.rotateLeft()) {
+				if (rc.canMove(d)) {
+					rc.move(d);
+					return;
+				}
+				i++;
+			}
+		} else {
+			rc.construct(RobotType.NOISETOWER);
+			while(true)
+				rc.yield();
+		}
+
+	}
 
 	public static void followWall(RobotController rc)
 			throws GameActionException {
