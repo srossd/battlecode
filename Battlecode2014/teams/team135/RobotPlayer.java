@@ -20,7 +20,8 @@ public class RobotPlayer {
 
 	static int maxHQ = 8;
 
-	static int pastrChannel = 57;
+	static int pastrSoldierChannel = 57;
+	static int pastrNoiseChannel = 59;
 	static int attackChannel = 58;
 	static int readyChannel = 8;
 	static boolean signaledAtHQ = false;
@@ -35,7 +36,8 @@ public class RobotPlayer {
 		directions = new Direction[] { Direction.NORTH, Direction.NORTH_EAST,
 				Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH,
 				Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST };
-		pastrChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
+		pastrSoldierChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
+		pastrNoiseChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
 		boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
@@ -123,12 +125,17 @@ public class RobotPlayer {
 					if (rc.isActive()) {
 						Robot[] guards = rc.senseNearbyGameObjects(Robot.class,
 								10, rc.getTeam());
-						boolean guarded = false;
+						boolean guardedSoldier = false;
+						boolean guardedNoise = false;
 						for (Robot r : guards)
 							if (rc.senseRobotInfo(r).type == RobotType.SOLDIER)
-								guarded = true;
-						if (!guarded)
-							rc.broadcast(pastrChannel, rc.getRobot().getID());
+								guardedSoldier = true;
+							if (rc.senseRobotInfo(r).type == RobotType.NOISETOWER)
+								guardedNoise = true;
+						if (!guardedSoldier)
+							rc.broadcast(pastrSoldierChannel, rc.getRobot().getID());
+						if (!guardedNoise)
+							rc.broadcast(pastrNoiseChannel, rc.getRobot().getID());
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -256,7 +263,8 @@ public class RobotPlayer {
 			awall = true;
 		}
 		if (rand.nextInt(30) < 1
-				&& rc.senseCowsAtLocation(rc.getLocation()) > 100)
+				&& rc.senseCowsAtLocation(rc.getLocation()) > 100 && rc.senseNearbyGameObjects(Robot.class, 10,
+						rc.getTeam().opponent()) < 3)
 			rc.construct(RobotType.PASTR);
 		double[] cows = new double[8];
 		for (int i = 0; i < 8; i++)
