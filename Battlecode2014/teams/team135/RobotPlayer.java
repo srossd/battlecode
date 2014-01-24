@@ -57,7 +57,7 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
-					//e.printStackTrace();
+					// e.printStackTrace();
 				}
 				try {
 					// Check if a robot is spawnable and spawn one if it is
@@ -81,7 +81,7 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("HQ Exception");
-					//e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 
@@ -117,7 +117,7 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("cowboy exception");
-					//e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 
@@ -143,7 +143,7 @@ public class RobotPlayer {
 					}
 				} catch (Exception e) {
 					System.out.println("pastr exception");
-					//e.printStackTrace();
+					// e.printStackTrace();
 				}
 			}
 
@@ -151,7 +151,7 @@ public class RobotPlayer {
 				try {
 					for (Direction d : directions) {
 						for (int i = 12; i > 1; i -= 2) {
-							while(!rc.isActive())
+							while (!rc.isActive())
 								rc.yield();
 							rc.attackSquare(rc.getLocation().add(d, i));
 							rc.yield();
@@ -261,15 +261,21 @@ public class RobotPlayer {
 			signaledAtHQ = false;
 			awall = true;
 		}
-		if (rand.nextInt(30) < 1
-				&& rc.senseCowsAtLocation(rc.getLocation()) > 100
-				&& rc.senseNearbyGameObjects(Robot.class, 10, rc.getTeam()
-						.opponent()).length < 3)
-			rc.construct(RobotType.PASTR);
+		MapLocation loc = rc.getLocation();
+		double totalcows = rc.senseCowsAtLocation(loc);
 		double[] cows = new double[8];
-		for (int i = 0; i < 8; i++)
-			cows[i] = rc.senseCowsAtLocation(rc.getLocation()
-					.add(directions[i]));
+		for (int i = 0; i < 8; i++) {
+			cows[i] = rc.senseCowsAtLocation(loc.add(directions[i],4));
+			totalcows+=cows[i];
+		}
+		if (totalcows > 100
+				&& rc.senseNearbyGameObjects(Robot.class, 10, rc.getTeam()
+						.opponent()).length < 3) {
+			rc.construct(RobotType.PASTR);
+			while (true)
+				rc.yield();
+		}
+
 		int index = maxIndex(cows);
 		if (index < 0) {
 			for (Direction d : directions) {
