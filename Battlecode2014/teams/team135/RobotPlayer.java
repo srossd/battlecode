@@ -128,10 +128,12 @@ public class RobotPlayer {
 						boolean guardedSoldier = false;
 						boolean guardedNoise = false;
 						for (Robot r : guards)
+						{
 							if (rc.senseRobotInfo(r).type == RobotType.SOLDIER)
 								guardedSoldier = true;
 							if (rc.senseRobotInfo(r).type == RobotType.NOISETOWER)
 								guardedNoise = true;
+						}
 						if (!guardedSoldier)
 							rc.broadcast(pastrSoldierChannel, rc.getRobot().getID());
 						if (!guardedNoise)
@@ -264,7 +266,7 @@ public class RobotPlayer {
 		}
 		if (rand.nextInt(30) < 1
 				&& rc.senseCowsAtLocation(rc.getLocation()) > 100 && rc.senseNearbyGameObjects(Robot.class, 10,
-						rc.getTeam().opponent()) < 3)
+						rc.getTeam().opponent()).length < 3)
 			rc.construct(RobotType.PASTR);
 		double[] cows = new double[8];
 		for (int i = 0; i < 8; i++)
