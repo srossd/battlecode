@@ -39,6 +39,7 @@ public class RobotPlayer {
 		pastrSoldierChannel = rand
 				.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
 		pastrNoiseChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
+
 		boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
@@ -265,15 +266,24 @@ public class RobotPlayer {
 		double totalcows = rc.senseCowsAtLocation(loc);
 		double[] cows = new double[8];
 		for (int i = 0; i < 8; i++) {
-			cows[i] = rc.senseCowsAtLocation(loc.add(directions[i],4));
-			totalcows+=cows[i];
+			cows[i] = rc.senseCowsAtLocation(loc.add(directions[i], 4));
+			totalcows += cows[i];
 		}
 		if (totalcows > 100
 				&& rc.senseNearbyGameObjects(Robot.class, 10, rc.getTeam()
 						.opponent()).length < 3) {
-			rc.construct(RobotType.PASTR);
-			while (true)
-				rc.yield();
+			boolean tooclose = false;
+			MapLocation[] pastrs = rc.sensePastrLocations(rc.getTeam());
+			for (MapLocation ml : pastrs)
+				if (loc.distanceSquaredTo(ml) <= GameConstants.PASTR_RANGE) {
+					tooclose = true;
+					break;
+				}
+			if (!tooclose) {
+				rc.construct(RobotType.PASTR);
+				while (true)
+					rc.yield();
+			}
 		}
 
 		int index = maxIndex(cows);
