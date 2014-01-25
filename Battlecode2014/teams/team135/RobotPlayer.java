@@ -39,7 +39,6 @@ public class RobotPlayer {
 		pastrSoldierChannel = rand
 				.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
 		pastrNoiseChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
-
 		boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
@@ -271,15 +270,21 @@ public class RobotPlayer {
 		}
 		if (totalcows > 100
 				&& rc.senseNearbyGameObjects(Robot.class, 10, rc.getTeam()
-						.opponent()).length < 3) {
-			boolean tooclose = false;
-			MapLocation[] pastrs = rc.sensePastrLocations(rc.getTeam());
-			for (MapLocation ml : pastrs)
-				if (loc.distanceSquaredTo(ml) <= GameConstants.PASTR_RANGE) {
-					tooclose = true;
+						.opponent()).length < 3) // is checking enemy necessary?
+													// it is 100 bytecodes
+		{
+			Robot[] robots = rc.senseNearbyGameObjects(Robot.class,
+					GameConstants.PASTR_RANGE, rc.getTeam());
+			boolean build = true;
+			for (Robot r : robots) {
+				RobotInfo ri = rc.senseRobotInfo(r);
+				if (ri.type == RobotType.PASTR || ri.isConstructing
+						&& ri.constructingType == RobotType.PASTR) {
+					build = false;
 					break;
 				}
-			if (!tooclose) {
+			}
+			if (build) {
 				rc.construct(RobotType.PASTR);
 				while (true)
 					rc.yield();
