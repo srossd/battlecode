@@ -36,8 +36,10 @@ public class RobotPlayer {
 		directions = new Direction[] { Direction.NORTH, Direction.NORTH_EAST,
 				Direction.EAST, Direction.SOUTH_EAST, Direction.SOUTH,
 				Direction.SOUTH_WEST, Direction.WEST, Direction.NORTH_WEST };
-		pastrSoldierChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
+		pastrSoldierChannel = rand
+				.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
 		pastrNoiseChannel = rand.nextInt(GameConstants.BROADCAST_MAX_CHANNELS);
+
 		boolean ready = false;
 		while (true) {
 			if (rc.getType() == RobotType.HQ) {
@@ -55,7 +57,8 @@ public class RobotPlayer {
 						}
 					}
 				} catch (Exception e) {
-
+					System.out.println("HQ Exception");
+					// e.printStackTrace();
 				}
 				try {
 					// Check if a robot is spawnable and spawn one if it is
@@ -78,7 +81,8 @@ public class RobotPlayer {
 						}
 					}
 				} catch (Exception e) {
-					// System.out.println("HQ Exception");
+					System.out.println("HQ Exception");
+					// e.printStackTrace();
 				}
 			}
 
@@ -94,14 +98,11 @@ public class RobotPlayer {
 								attackBot(rc);
 							else if (rc.senseBroadcastingRobotLocations(rc
 									.getTeam()).length > 0)
-                                if (rand.nextInt(2) < 1)
-                                {
-								    noiseBot(rc);
-                                }
-                                else
-                                {
-								    guardBot(rc);
-                                }
+								if (rand.nextInt(2) < 1) {
+									noiseBot(rc);
+								} else {
+									guardBot(rc);
+								}
 							else
 								pastrBot(rc);
 						} else {
@@ -116,7 +117,8 @@ public class RobotPlayer {
 						}
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println("cowboy exception");
+					// e.printStackTrace();
 				}
 			}
 
@@ -124,47 +126,43 @@ public class RobotPlayer {
 				try {
 					if (rc.isActive()) {
 						Robot[] guards = rc.senseNearbyGameObjects(Robot.class,
-								10, rc.getTeam());
+								5, rc.getTeam());
 						boolean guardedSoldier = false;
 						boolean guardedNoise = false;
-						for (Robot r : guards)
-						{
+						for (Robot r : guards) {
 							if (rc.senseRobotInfo(r).type == RobotType.SOLDIER)
 								guardedSoldier = true;
 							if (rc.senseRobotInfo(r).type == RobotType.NOISETOWER)
 								guardedNoise = true;
 						}
 						if (!guardedSoldier)
-							rc.broadcast(pastrSoldierChannel, rc.getRobot().getID());
+							rc.broadcast(pastrSoldierChannel, rc.getRobot()
+									.getID());
 						if (!guardedNoise)
-							rc.broadcast(pastrNoiseChannel, rc.getRobot().getID());
+							rc.broadcast(pastrNoiseChannel, rc.getRobot()
+									.getID());
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println("pastr exception");
+					// e.printStackTrace();
 				}
 			}
 
 			if (rc.getType() == RobotType.NOISETOWER) {
-					for (int i = 16; i > 3; i-=5) {
-						for (Direction d : directions)
-                        {
-                            System.out.println(d);
-                            try {
-                                System.out.println("try" + d);
-							    rc.attackSquare(rc.getLocation().add(d, i));
-                                rc.yield();
-                                rc.yield();
-                                rc.yield();
-                                rc.yield();
-                            }
-                            catch (Exception e)
-                            { System.out.println(e + "   " + e.getMessage());}
-                        }
-						rc.yield();
+				try {
+					for (Direction d : directions) {
+						for (int i = 12; i > 1; i -= 2) {
+							while (!rc.isActive())
+								rc.yield();
+							rc.attackSquare(rc.getLocation().add(d, i));
+							rc.yield();
+						}
 					}
+				} catch (Exception e) {
+					System.out.println("noise exception");
+					e.printStackTrace();
+				}
 			}
-
-			rc.yield();
 		}
 	}
 
@@ -264,14 +262,30 @@ public class RobotPlayer {
 			signaledAtHQ = false;
 			awall = true;
 		}
-		if (rand.nextInt(30) < 1
-				&& rc.senseCowsAtLocation(rc.getLocation()) > 100 && rc.senseNearbyGameObjects(Robot.class, 10,
-						rc.getTeam().opponent()).length < 3)
-			rc.construct(RobotType.PASTR);
+		MapLocation loc = rc.getLocation();
+		double totalcows = rc.senseCowsAtLocation(loc);
 		double[] cows = new double[8];
-		for (int i = 0; i < 8; i++)
-			cows[i] = rc.senseCowsAtLocation(rc.getLocation()
-					.add(directions[i]));
+		for (int i = 0; i < 8; i++) {
+			cows[i] = rc.senseCowsAtLocation(loc.add(directions[i], 4));
+			totalcows += cows[i];
+		}
+		if (totalcows > 100
+				&& rc.senseNearbyGameObjects(Robot.class, 10, rc.getTeam()
+						.opponent()).length < 3) {
+			boolean tooclose = false;
+			MapLocation[] pastrs = rc.sensePastrLocations(rc.getTeam());
+			for (MapLocation ml : pastrs)
+				if (loc.distanceSquaredTo(ml) <= GameConstants.PASTR_RANGE) {
+					tooclose = true;
+					break;
+				}
+			if (!tooclose) {
+				rc.construct(RobotType.PASTR);
+				while (true)
+					rc.yield();
+			}
+		}
+
 		int index = maxIndex(cows);
 		if (index < 0) {
 			for (Direction d : directions) {
