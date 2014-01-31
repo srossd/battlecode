@@ -420,7 +420,19 @@ public class RobotPlayer {
 		final MapLocation HQ = rc.senseEnemyHQLocation();
 		MapLocation[] pastrs = rc.sensePastrLocations(rc.getTeam().opponent());
 		if (pastrs.length == 0)
-			return HQ;
+        {
+			MapLocation bestLoc = rc.getLocation();
+			double bestCows = rc.senseCowsAtLocation(bestLoc);
+			for (Direction d : directions) {
+				MapLocation loc = rc.getLocation().add(d, 4);
+				double cows = rc.senseCowsAtLocation(loc);
+				if (cows >= bestCows)
+				{
+					bestLoc = loc;
+				}
+			}
+			return bestLoc;
+        }
 		Arrays.sort(pastrs, new Comparator<MapLocation>() {
 			public int compare(MapLocation a, MapLocation b) {
 				return a.distanceSquaredTo(HQ) - b.distanceSquaredTo(HQ);
