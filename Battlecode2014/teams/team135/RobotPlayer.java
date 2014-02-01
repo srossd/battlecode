@@ -339,9 +339,22 @@ public class RobotPlayer {
 				i++;
 			}
 		} else {
-			rc.construct(RobotType.NOISETOWER);
-			while (true)
-				rc.yield();
+			Robot[] robots = rc.senseNearbyGameObjects(Robot.class,
+					GameConstants.PASTR_RANGE, rc.getTeam());
+			boolean build = true;
+			for (Robot r : robots) {
+				RobotInfo ri = rc.senseRobotInfo(r);
+				if (ri.type == RobotType.NOISETOWER || ri.isConstructing
+						&& ri.constructingType == RobotType.NOISETOWER) {
+					build = false;
+					break;
+				}
+			}
+			if (build) {
+				rc.construct(RobotType.NOISETOWER);
+				while (true)
+					rc.yield();
+			}
 		}
 
 	}
