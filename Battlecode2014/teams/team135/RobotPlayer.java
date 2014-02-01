@@ -49,10 +49,10 @@ public class RobotPlayer {
 						empty++;
 				}
 				try {
-					if (empty == 0 || Clock.getRoundNum() >= 235) {
+					if (rc.readBroadcast(readyChannel) == 0 && (empty == 0 || Clock.getRoundNum() >= 235)) {
 						rc.broadcast(readyChannel, 1);
 					} else {
-						if (rc.readBroadcast(readyChannel) != 0) {
+						if (Clock.getRoundNum() < 235 && rc.readBroadcast(readyChannel) != 0) {
 							rc.broadcast(readyChannel, 0);
 						}
 					}
