@@ -422,7 +422,7 @@ public class RobotPlayer {
 			for (Direction d : directions) {
 				MapLocation loc = rc.getLocation().add(d, 4);
 				double cows = rc.senseCowsAtLocation(loc);
-				if (cows >= bestCows)
+				if (cows > bestCows)
 				{
 					bestLoc = loc;
 				}
