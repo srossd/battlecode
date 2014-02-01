@@ -13,6 +13,7 @@ import battlecode.common.RobotController;
 import battlecode.common.RobotInfo;
 import battlecode.common.RobotType;
 import battlecode.common.TerrainTile;
+import battlecode.common.Clock;
 
 public class RobotPlayer {
 	static Random rand;
@@ -48,7 +49,7 @@ public class RobotPlayer {
 						empty++;
 				}
 				try {
-					if (empty == 0) {
+					if (empty == 0 || Clock.getRoundNum() >= 235) {
 						rc.broadcast(readyChannel, 1);
 					} else {
 						if (rc.readBroadcast(readyChannel) != 0) {
