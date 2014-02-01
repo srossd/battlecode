@@ -97,7 +97,7 @@ public class RobotPlayer {
 								attackBot(rc);
 							else if (rc.senseBroadcastingRobotLocations(rc
 									.getTeam()).length > 0)
-								if (rand.nextInt(2) < 1) {
+								if (rand.nextInt(3) < 1) {
 									noiseBot(rc);
 								} else {
 									guardBot(rc);
@@ -151,7 +151,7 @@ public class RobotPlayer {
 			if (rc.getType() == RobotType.NOISETOWER) {
 				try {
 					for (Direction d : directions) {
-						for (int i = 12; i > 1; i -= 2) {
+						for (int i = 12; i > 3; i -= 1) {
 							while (!rc.isActive())
 								rc.yield();
 							rc.attackSquare(rc.getLocation().add(d, i));
