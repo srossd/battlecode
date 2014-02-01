@@ -178,14 +178,6 @@ public class RobotPlayer {
 		Robot[] nearbyEnemies = rc.senseNearbyGameObjects(Robot.class, 10, rc
 				.getTeam().opponent());
 		MapLocation target = getTarget(rc);
-		if (rc.getLocation().distanceSquaredTo(target) < 200
-				&& nearbyEnemies.length > 0
-				&& rc.senseRobotInfo(nearbyEnemies[0]).type != RobotType.HQ)
-			target = rc.senseRobotInfo(nearbyEnemies[0]).location;
-		if (rc.getLocation().distanceSquaredTo(target) < 200
-				&& nearbyEnemies.length > 1
-				&& rc.senseRobotInfo(nearbyEnemies[1]).type != RobotType.HQ)
-			target = rc.senseRobotInfo(nearbyEnemies[1]).location;
 		Direction toOpponent = rc.getLocation().directionTo(target);
 		if (rc.getLocation().distanceSquaredTo(target) < 20 && !signaledAtHQ) {
 			signaledAtHQ = true;
