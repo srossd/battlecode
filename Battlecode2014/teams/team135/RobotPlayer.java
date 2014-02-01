@@ -128,13 +128,16 @@ public class RobotPlayer {
 								5, rc.getTeam());
 						boolean guardedSoldier = false;
 						boolean guardedNoise = false;
-						 for (Robot r : guards) {
-                             RobotInfo ri = rc.senseRobotInfo(r);
-                             if (ri.type == RobotType.NOISETOWER || ri.type == RobotType.SOLDIER && ri.isConstructing && ri.constructingType == RobotType.NOISETOWER)
-                            	 guardedNoise = true;
-                             else if (rc.senseRobotInfo(r).type == RobotType.SOLDIER)
-                            	 guardedSoldier = true;
-						 }
+						for (Robot r : guards) {
+							RobotInfo ri = rc.senseRobotInfo(r);
+							if (ri.type == RobotType.NOISETOWER
+									|| ri.type == RobotType.SOLDIER
+									&& ri.isConstructing
+									&& ri.constructingType == RobotType.NOISETOWER)
+								guardedNoise = true;
+							else if (rc.senseRobotInfo(r).type == RobotType.SOLDIER)
+								guardedSoldier = true;
+						}
 						if (!guardedSoldier)
 							rc.broadcast(pastrSoldierChannel, rc.getRobot()
 									.getID());
@@ -285,7 +288,7 @@ public class RobotPlayer {
 					break;
 				}
 			}
-			if (build) { 
+			if (build) {
 				rc.construct(RobotType.PASTR);
 				while (true)
 					rc.yield();
